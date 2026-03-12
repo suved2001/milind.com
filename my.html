@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Course Outcome Attainment Portal</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background: #f4f7f6; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .input-group { margin-bottom: 15px; display: grid; grid-template-columns: 200px 1fr; }
+        input, select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #bdc3c7; padding: 12px; text-align: center; }
+        th { background-color: #34495e; color: white; }
+        button { background: #27ae60; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-top: 20px; }
+        .report-section { margin-top: 40px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Course Details Input</h1>
+    <div class="input-group">
+        <label>Subject Name:</label>
+        <input type="text" id="subjName" value="Neural Network and Fuzzy Logic">
+    </div>
+    <div class="input-group">
+        <label>Course Code:</label>
+        <input type="text" id="courseCode" value="A1304">
+    </div>
+
+    <h2>Direct Attainment Inputs (Scores %)</h2>
+    <table>
+        <tr>
+            <th>CO</th>
+            <th>ISE %</th>
+            <th>MSE %</th>
+            <th>ESE %</th>
+            <th>Indirect (Exit Survey) %</th>
+        </tr>
+        <tr>
+            <td>CO1</td>
+            <td><input type="number" id="co1_ise" value="81.58"></td>
+            <td><input type="number" id="co1_mse" value="84.65"></td>
+            <td><input type="number" id="co1_ese" value="83.88"></td>
+            <td><input type="number" id="co1_ind" value="97.96"></td>
+        </tr>
+        </table>
+
+    <button onclick="calculateAttainment()">Generate Report</button>
+
+    <div id="report" class="report-section">
+        <h2>CO Quality Closure Loop Report</h2>
+        <table id="resultTable">
+            <thead>
+                <tr>
+                    <th>CO</th>
+                    <th>Direct Level (X)</th>
+                    <th>Indirect Level (Y)</th>
+                    <th>Total Attainment</th>
+                    <th>Target (67%)</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="resultBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function getLevel(percent) {
+    if (percent > 70) return 3;
+    if (percent >= 50) return 2;
+    return 1;
+}
+
+function calculateAttainment() {
+    // Basic calculation for CO1 based on document formulas
+    let ise = parseFloat(document.getElementById('co1_ise').value);
+    let mse = parseFloat(document.getElementById('co1_mse').value);
+    let ese = parseFloat(document.getElementById('co1_ese').value);
+    let ind = parseFloat(document.getElementById('co1_ind').value);
+
+    // [cite: 25] Formula: 0.2*ISE + 0.2*MSE + 0.6*ESE
+    let directAttainment = (0.2 * getLevel(ise)) + (0.2 * getLevel(mse)) + (0.6 * getLevel(ese));
+    let indirectLevel = getLevel(ind);
+    
+    //  Formula: 0.8*X + 0.2*Y
+    let total = (0.8 * directAttainment) + (0.2 * indirectLevel);
+
+    let tbody = document.getElementById('resultBody');
+    tbody.innerHTML = `
+        <tr>
+            <td>A1304.1</td>
+            <td>${directAttainment.toFixed(2)}</td>
+            <td>${indirectLevel}</td>
+            <td>${total.toFixed(2)}</td>
+            <td>2.2</td>
+            <td>${total >= 2.2 ? 'Target Achieved' : 'Action Required'}</td>
+        </tr>
+    `;
+    document.getElementById('report').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
